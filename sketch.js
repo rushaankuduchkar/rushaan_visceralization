@@ -15,7 +15,7 @@ let maxSteps = 16;
 let osc;
 
 function setup() {
-  createCanvas(windowWidth, windowHeight); // ✅ responsive
+  createCanvas(1920, 1080 );
   frameRate(4);
   textFont("monospace");
 
@@ -26,60 +26,50 @@ function setup() {
   userStartAudio();
 }
 
-function windowResized() {
-  resizeCanvas(windowWidth, windowHeight); // ✅ adapts on resize
-}
-
 function draw() {
-  background(10, 10, 15);
+  background(15);
 
-  let margin = width * 0.08;
-
-  let rowHeight = (height - margin * 2) / countries.length;
-  let colWidth = (width - margin * 2) / years.length;
+  let rowHeight = height / countries.length;
+  let colWidth = width / years.length;
 
   step = (step + 1) % maxSteps;
 
-  // 🎯 PLAYHEAD
-  let playheadX = map(step, 0, maxSteps, margin, width - margin);
-  stroke(0, 200, 255);
-  strokeWeight(2);
-  line(playheadX, margin, playheadX, height - margin);
+  // 🎯 PLAYHEAD LINE
+  let playheadX = map(step, 0, maxSteps, 0, width);
+  stroke(0, 255, 180);
+  line(playheadX, 0, playheadX, height);
   noStroke();
 
   for (let i = 0; i < countries.length; i++) {
-    let y = margin + i * rowHeight + rowHeight / 2;
+    let y = i * rowHeight + rowHeight / 2;
 
-    // Country label
     fill(255);
-    textSize(rowHeight * 0.2); // ✅ scales text
-    text(countries[i], margin * 0.2, y);
+    text(countries[i], 10, y);
 
     for (let j = 0; j < years.length; j++) {
-      let xStart = margin + j * colWidth;
+      let xStart = j * colWidth;
 
       let movieCount = data[countries[i]][j];
       let beats = floor(map(movieCount, 0, 2000, 2, maxSteps));
 
       for (let b = 0; b < beats; b++) {
-        let x = xStart + map(b, 0, beats, colWidth * 0.2, colWidth * 0.9);
+        let x = xStart + map(b, 0, beats, 80, colWidth - 20);
 
         let isActive = (b === step % beats);
 
         if (isActive) {
-          fill(0, 200, 255);
-          ellipse(x, y, rowHeight * 0.2); // ✅ scales dots
-          playTone(j);
+          fill(0, 255, 180);
+          ellipse(x, y, 12);
+
+          playTone(j); // 🔥 NOW BASED ON YEAR
         } else {
           fill(80);
-          ellipse(x, y, rowHeight * 0.08);
+          ellipse(x, y, 6);
         }
       }
 
-      // Year label
       fill(150);
-      textSize(rowHeight * 0.18);
-      text(years[j], xStart + colWidth * 0.4, margin * 0.6);
+      text(years[j], xStart + colWidth / 2 - 15, 20);
     }
   }
 }
@@ -87,9 +77,10 @@ function draw() {
 function playTone(yearIndex) {
   let freq;
 
-  if (yearIndex === 0) freq = 120;
-  else if (yearIndex === 1) freq = 300;
-  else freq = 600;
+  // 🎼 pitch based on year
+  if (yearIndex === 0) freq = 120;   // 2011 (low)
+  else if (yearIndex === 1) freq = 300; // 2013 (mid)
+  else freq = 600; // 2015 (high)
 
   osc.freq(freq);
   osc.amp(0.3, 0.05);
